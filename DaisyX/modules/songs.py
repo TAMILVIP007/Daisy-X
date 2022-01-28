@@ -11,13 +11,11 @@ from DaisyX.utils.ut import get_arg
 
 def yt_search(song):
     videosSearch = VideosSearch(song, limit=1)
-    result = videosSearch.result()
-    if not result:
-        return False
-    else:
+    if result := videosSearch.result():
         video_id = result["result"][0]["id"]
-        url = f"https://youtu.be/{video_id}"
-        return url
+        return f"https://youtu.be/{video_id}"
+    else:
+        return False
 
 
 class AioHttp:
@@ -56,7 +54,7 @@ async def song(client, message):
     yt = YouTube(video_link)
     audio = yt.streams.filter(only_audio=True).first()
     try:
-        download = audio.download(filename=f"{str(user_id)}")
+        download = audio.download(filename=f'{user_id}')
     except Exception as ex:
         await status.edit("Failed to download song")
         LOGGER.error(ex)
@@ -65,14 +63,15 @@ async def song(client, message):
     await pbot.send_chat_action(message.chat.id, "upload_audio")
     await pbot.send_audio(
         chat_id=message.chat.id,
-        audio=f"{str(user_id)}.mp3",
+        audio=f'{user_id}.mp3',
         duration=int(yt.length),
         title=str(yt.title),
         performer=str(yt.author),
         reply_to_message_id=message.message_id,
     )
+
     await status.delete()
-    os.remove(f"{str(user_id)}.mp3")
+    os.remove(f'{user_id}.mp3')
 
 
 __help__ = """
